@@ -33,7 +33,7 @@ object DataLoader {
     private const val COMPOSE_DIR = "compose"
     private const val GRAPH_DIR = "graph"
 
-    private const val COMPOSE_EXT_NAME = "frt"
+    private const val COMPOSE_EXT_NAME = "frc"
     private const val GRAPH_EXT_NAME = "frg"
     private const val BINARY_EXT_NAME = "frb"
 
