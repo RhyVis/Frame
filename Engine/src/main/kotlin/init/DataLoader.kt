@@ -22,7 +22,7 @@ object DataLoader {
 
     private const val TEXT_COMPOSE_EXT_NAME = "frt"
     private const val GRAPH_EXT_NAME = "frg"
-    private const val DENSE_EXT_NAME = "frd"
+    private const val BINARY_EXT_NAME = "frb"
 
     private val logger = KotlinLogging.logger("DataLoader")
 
@@ -177,7 +177,7 @@ object DataLoader {
 
     private fun getBinaryPath(sourcePath: Path): Path {
         val sourcePathStr = sourcePath.toString()
-        val binaryPathStr = sourcePathStr.substring(0, sourcePathStr.length - GRAPH_EXT_NAME.length) + DENSE_EXT_NAME
+        val binaryPathStr = sourcePathStr.substring(0, sourcePathStr.length - GRAPH_EXT_NAME.length) + BINARY_EXT_NAME
         return Path.of(binaryPathStr)
     }
 
