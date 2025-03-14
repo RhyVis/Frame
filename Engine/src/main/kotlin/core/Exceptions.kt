@@ -19,6 +19,10 @@ class JumpLimitExceededException(
     message: String,
 ) : GraphExecException(message)
 
+class LoopLimitExceededException(
+    message: String,
+) : GraphExecException(message)
+
 class ScriptException(
     message: String,
     cause: Throwable? = null,

@@ -6,6 +6,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import rhx.frame.core.JumpCalledException
 import rhx.frame.core.JumpLimitExceededException
 import rhx.frame.core.JumpTargetNotFoundException
+import rhx.frame.core.LoopLimitExceededException
 import rhx.frame.core.ScriptException
 import rhx.frame.interaction.Access
 import rhx.frame.script.graph.BinaryOperation
@@ -76,6 +77,13 @@ object ExecMachine : AutoCloseable {
      * Prevents infinite loops caused by jumps.
      */
     private const val MAX_JUMP_COUNT = 1000U
+
+    /**
+     * Maximum number of loops allowed in a single [execLoop] run.
+     *
+     * Prevents infinite loops caused by loop.
+     */
+    private const val MAX_LOOP_COUNT = 10_000_000U
 
     /**
      * The terminal object to interaction with the user.
@@ -249,15 +257,9 @@ object ExecMachine : AutoCloseable {
         isContinueRequested = false
 
         val (cond, body) = stmt
+        var loopCount = 0U
 
         while (true) {
-            val conditionResult = evalExpr(cond)
-            if (!conditionResult.isTrue) break
-
-            execBlock(body)
-
-            if (returnBuf != Value.VOID) return
-
             if (isBreakRequested) {
                 isBreakRequested = false
                 break
@@ -267,6 +269,17 @@ object ExecMachine : AutoCloseable {
                 isContinueRequested = false
                 continue
             }
+
+            val conditionResult = cond.eval()
+            if (!conditionResult.isTrue) break
+
+            if (++loopCount > MAX_LOOP_COUNT) {
+                throw LoopLimitExceededException("Loop limit exceeded at $stmt in $env")
+            }
+
+            execBlock(body)
+
+            if (returnBuf != Value.VOID) return
         }
     }
 
