@@ -4,8 +4,8 @@ import org.antlr.v4.kotlinruntime.CharStreams
 import org.antlr.v4.kotlinruntime.CommonTokenStream
 import rhx.frame.antlr.graphLexer
 import rhx.frame.antlr.graphParser
-import rhx.frame.script.graph.node.GraphNodeBuilder
-import rhx.frame.script.graph.node.ProgramNode
+import rhx.frame.script.graph.GraphNodeBuilder
+import rhx.frame.script.graph.ProgramNode
 import java.io.File
 import java.io.InputStream
 

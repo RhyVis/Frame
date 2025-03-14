@@ -1,5 +1,8 @@
 package rhx.frame.interaction
 
+/**
+ * Terminal access implementation.
+ */
 class TerminalAccess : Access {
     override fun display(text: String) {
         print(text)

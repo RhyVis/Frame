@@ -1,18 +1,27 @@
 package rhx.frame.core.graph
 
+import rhx.frame.core.ScriptException
+import rhx.frame.init.DataLoader
 import rhx.frame.interaction.Access
 
-@Suppress("MemberVisibilityCanBePrivate")
+/**
+ * System environment, more like static information and functions. Make sure to initialize it before [DataLoader].
+ */
 object SystemEnv {
     /**
      * System function map
      *
      * @see systemCall
      */
-    lateinit var systemCallMap: MutableMap<String, (List<Value>) -> Value>
+    private lateinit var systemCallMap: MutableMap<String, (List<Value>) -> Value>
 
     private val access by lazy { Access.instance }
 
+    /**
+     * Initialize [systemCallMap] and register system functions
+     *
+     * @see systemCall
+     */
     fun load() {
         systemCallMap =
             mutableMapOf(
@@ -46,7 +55,7 @@ object SystemEnv {
     }
 
     /**
-     * Register system function
+     * Register system function, use after [load]
      *
      * @param name function name
      * @param func function implementation
@@ -60,24 +69,39 @@ object SystemEnv {
 
     // region System functions
 
+    /**
+     * Throw exception with message
+     */
     private val except = { args: List<Value> ->
         throw ScriptException(args.joinToString(" ") { it.toString() })
     }
 
+    /**
+     * Convert value to [Value.StringValue]
+     */
     private val toStringSys = { args: List<Value> ->
         Value.createString(args[0].toString())
     }
 
+    /**
+     * Print function
+     */
     private val print = { args: List<Value> ->
         access.display(args.joinToString(" ") { it.toString() })
         Value.VOID
     }
 
+    /**
+     * Print line function
+     */
     private val printLn = { args: List<Value> ->
         access.displayLn(args.joinToString(" ") { it.toString() })
         Value.VOID
     }
 
+    /**
+     * Print format function
+     */
     private val printFormat = { args: List<Value> ->
         val format = args[0].toString()
         val values = args.drop(1).map { it.toString() }.toTypedArray()
@@ -85,6 +109,9 @@ object SystemEnv {
         Value.VOID
     }
 
+    /**
+     * Wait for input function, returns input string
+     */
     private val waitInput = { args: List<Value> ->
         val message = if (args.isNotEmpty()) args[0].toString() else "Press any key to continue..."
         access.displayLn(message)

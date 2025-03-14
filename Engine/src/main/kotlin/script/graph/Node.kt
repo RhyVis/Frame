@@ -1,9 +1,9 @@
-package rhx.frame.script.graph.node
+package rhx.frame.script.graph
 
 import kotlinx.serialization.Serializable
-import rhx.frame.init.GraphDict
-import rhx.frame.init.TextDict
-import rhx.frame.script.compose.TextCompose
+import rhx.frame.core.GraphDict
+import rhx.frame.core.TextDict
+import rhx.frame.script.compose.Compose
 
 // region Node
 
@@ -38,7 +38,7 @@ sealed class Statement : Node()
 data class Reference(
     val name: String,
 ) : Statement() {
-    val compose: TextCompose
+    val compose: Compose
         get() = TextDict[name] ?: error("TextCompose $name not found.")
 }
 

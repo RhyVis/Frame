@@ -2,10 +2,10 @@ package script
 
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.BeforeAll
+import rhx.frame.core.getCompose
 import rhx.frame.core.graph.SystemEnv
 import rhx.frame.init.AccessLoader
 import rhx.frame.init.DataLoader
-import rhx.frame.init.getCompose
 import kotlin.test.Test
 
 class ComposeTest {

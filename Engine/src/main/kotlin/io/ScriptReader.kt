@@ -1,7 +1,7 @@
 package rhx.frame.io
 
 import rhx.frame.script.basic.Paragraph
-import rhx.frame.script.compose.TextCompose
+import rhx.frame.script.compose.Compose
 import java.io.File
 import java.io.InputStream
 
@@ -12,7 +12,7 @@ class ScriptReader(
 
     private var paragraphCounter: UInt = 0u
 
-    fun createTextCompose(): TextCompose {
+    fun createTextCompose(): Compose {
         val meta: String
         val content =
             stream.bufferedReader().readLines().let { lines ->
@@ -58,7 +58,7 @@ class ScriptReader(
             paragraphs.add(currentParagraph)
         }
 
-        return TextCompose(meta, paragraphs)
+        return Compose(meta, paragraphs)
     }
 
     override fun close() {

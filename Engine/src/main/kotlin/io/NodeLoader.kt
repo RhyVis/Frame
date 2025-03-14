@@ -5,7 +5,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
-import rhx.frame.script.graph.node.Node
+import rhx.frame.script.graph.Node
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists

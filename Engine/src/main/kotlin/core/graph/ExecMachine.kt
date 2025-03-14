@@ -3,8 +3,49 @@
 package rhx.frame.core.graph
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import rhx.frame.core.JumpCalledException
+import rhx.frame.core.JumpLimitExceededException
+import rhx.frame.core.JumpTargetNotFoundException
+import rhx.frame.core.ScriptException
 import rhx.frame.interaction.Access
-import rhx.frame.script.graph.node.*
+import rhx.frame.script.graph.BinaryOperation
+import rhx.frame.script.graph.BoolLiteral
+import rhx.frame.script.graph.CallGraphStatement
+import rhx.frame.script.graph.ConditionalStatement
+import rhx.frame.script.graph.Expression
+import rhx.frame.script.graph.FloatLiteral
+import rhx.frame.script.graph.FunctionCall
+import rhx.frame.script.graph.FunctionCallExpression
+import rhx.frame.script.graph.FunctionDeclaration
+import rhx.frame.script.graph.GlobalFunctionDeclaration
+import rhx.frame.script.graph.IntegerLiteral
+import rhx.frame.script.graph.JumpMark
+import rhx.frame.script.graph.JumpStatement
+import rhx.frame.script.graph.LoopBreakStatement
+import rhx.frame.script.graph.LoopContinueStatement
+import rhx.frame.script.graph.LoopStatement
+import rhx.frame.script.graph.NullLiteral
+import rhx.frame.script.graph.ObjectFieldAccessExpression
+import rhx.frame.script.graph.ObjectFieldAssignment
+import rhx.frame.script.graph.ObjectInstantiationExpression
+import rhx.frame.script.graph.ObjectMethodCall
+import rhx.frame.script.graph.ObjectMethodCallExpression
+import rhx.frame.script.graph.ObjectTypeDeclaration
+import rhx.frame.script.graph.Operator
+import rhx.frame.script.graph.ParenthesizedExpression
+import rhx.frame.script.graph.Reference
+import rhx.frame.script.graph.ReturnStatement
+import rhx.frame.script.graph.SelfOperator
+import rhx.frame.script.graph.Statement
+import rhx.frame.script.graph.StringLiteral
+import rhx.frame.script.graph.SystemCall
+import rhx.frame.script.graph.SystemCallExpression
+import rhx.frame.script.graph.TerminateStatement
+import rhx.frame.script.graph.UnaryOperation
+import rhx.frame.script.graph.VariableAssignment
+import rhx.frame.script.graph.VariableDeclaration
+import rhx.frame.script.graph.VariableReference
+import rhx.frame.script.graph.VariableType
 
 /**
  * Singleton object that executes a list of statements in a given scope.

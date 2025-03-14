@@ -2,8 +2,8 @@ package rhx.frame.core.graph
 
 import rhx.frame.core.graph.PredefinedType.toStringMethod
 import rhx.frame.init.DataLoader
-import rhx.frame.script.graph.node.FunctionDeclaration
-import rhx.frame.script.graph.node.ObjectTypeDeclaration
+import rhx.frame.script.graph.FunctionDeclaration
+import rhx.frame.script.graph.ObjectTypeDeclaration
 
 /**
  * Global environment for graph execution, first level of environment hierarchy.

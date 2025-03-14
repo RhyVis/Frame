@@ -1,14 +1,14 @@
-package rhx.frame.init
+package rhx.frame.core
 
-import rhx.frame.script.compose.TextCompose
-import rhx.frame.script.graph.node.ProgramNode
+import rhx.frame.script.compose.Compose
+import rhx.frame.script.graph.ProgramNode
 
 /**
  * TextDict is a map of text name to text object.
  */
-val TextDict = mutableMapOf<String, TextCompose>()
+val TextDict = mutableMapOf<String, Compose>()
 
-fun getCompose(name: String): TextCompose = TextDict[name] ?: throw IllegalArgumentException("Compose $name not found")
+fun getCompose(name: String): Compose = TextDict[name] ?: throw IllegalArgumentException("Compose $name not found")
 
 /**
  * GraphDict is a map of graph name to graph object.

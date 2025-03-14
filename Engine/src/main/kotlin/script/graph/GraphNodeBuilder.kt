@@ -1,6 +1,6 @@
 @file:Suppress("ktlint:standard:no-wildcard-imports")
 
-package rhx.frame.script.graph.node
+package rhx.frame.script.graph
 
 import rhx.frame.antlr.graphBaseVisitor
 import rhx.frame.antlr.graphParser.*

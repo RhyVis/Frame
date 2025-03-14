@@ -1,4 +1,4 @@
-package rhx.frame.script.graph.node
+package rhx.frame.script.graph
 
 enum class SelfOperator {
     NOT,

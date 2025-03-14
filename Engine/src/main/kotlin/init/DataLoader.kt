@@ -1,26 +1,39 @@
 package rhx.frame.init
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import rhx.frame.core.GraphDict
+import rhx.frame.core.TextDict
 import rhx.frame.core.graph.GlobalEnv
+import rhx.frame.core.graph.SystemEnv
 import rhx.frame.exception.RuntimeIncompleteException
 import rhx.frame.io.GraphReader
 import rhx.frame.io.NodeLoader
 import rhx.frame.io.ScriptReader
-import rhx.frame.script.compose.TextCompose
-import rhx.frame.script.graph.node.GlobalFunctionDeclaration
-import rhx.frame.script.graph.node.ObjectTypeDeclaration
-import rhx.frame.script.graph.node.ProgramNode
+import rhx.frame.script.compose.Compose
+import rhx.frame.script.graph.GlobalFunctionDeclaration
+import rhx.frame.script.graph.ObjectTypeDeclaration
+import rhx.frame.script.graph.ProgramNode
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
 import kotlin.time.measureTime
 
+/**
+ * Load data from file system or classpath. Right after the initialization of [SystemEnv].
+ *
+ * All compose and graph files are loaded and cached in memory.
+ * Pre-serialize and cache graph nodes to speed up loading.
+ *
+ * @see ScriptReader
+ * @see GraphReader
+ * @see NodeLoader
+ */
 object DataLoader {
     private const val COMPOSE_DIR = "compose"
     private const val GRAPH_DIR = "graph"
 
-    private const val TEXT_COMPOSE_EXT_NAME = "frt"
+    private const val COMPOSE_EXT_NAME = "frt"
     private const val GRAPH_EXT_NAME = "frg"
     private const val BINARY_EXT_NAME = "frb"
 
@@ -96,7 +109,7 @@ object DataLoader {
     }
 
     private fun walkComposeDir(dir: File) {
-        dir.walkTopDown().filter { it.isFile && it.extension == TEXT_COMPOSE_EXT_NAME }.forEach { file ->
+        dir.walkTopDown().filter { it.isFile && it.extension == COMPOSE_EXT_NAME }.forEach { file ->
             try {
                 processComposeFile(file)
             } catch (e: Exception) {
@@ -117,13 +130,13 @@ object DataLoader {
 
     private fun processComposeFile(file: File) {
         ScriptReader(file).use { reader ->
-            val textCompose: TextCompose = reader.createTextCompose()
-            if (textCompose.name in TextDict) {
+            val compose: Compose = reader.createTextCompose()
+            if (compose.name in TextDict) {
                 logger.warn {
-                    "Duplicate crush of ${textCompose.name} by ${file.absolutePath}, overriding."
+                    "Duplicate crush of ${compose.name} by ${file.absolutePath}, overriding."
                 }
             }
-            TextDict[textCompose.name] = textCompose
+            TextDict[compose.name] = compose
         }
     }
 

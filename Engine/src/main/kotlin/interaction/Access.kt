@@ -1,33 +1,41 @@
 package rhx.frame.interaction
 
 import rhx.frame.core.graph.Value
-import rhx.frame.script.compose.TextCompose
+import rhx.frame.script.compose.Compose
 
+/**
+ * The interface for interaction with the user, and how to display game content.
+ *
+ * Different implementations of [Access] can be used in different environments.
+ */
 interface Access {
     fun displayCompose(
-        compose: TextCompose,
+        compose: Compose,
         values: Map<String, Value>,
     ) {
-        compose.getAllParagraphs(values).forEach { paragraph ->
-            paragraph.forEach {
-                displayLn(it)
+        compose.getAllParagraphs(values).forEach { (name, content) ->
+            displayLn(name)
+            content.forEach { line ->
+                displayLn(line)
             }
         }
     }
 
     fun displayComposePaused(
-        compose: TextCompose,
+        compose: Compose,
         values: Map<String, Value>,
     ) {
-        compose.getAllParagraphs(values).forEach { paragraph ->
+        compose.getAllParagraphs(values).forEach { (name, content) ->
+            displayLn(name)
             waitForInput()
-            paragraph.forEach {
-                displayLn(it)
+            content.forEach { line ->
+                waitForInput()
+                displayLn(line)
             }
         }
     }
 
-    fun displayComposeRaw(compose: TextCompose) {
+    fun displayComposeRaw(compose: Compose) {
         displayCompose(compose, emptyMap())
     }
 
@@ -39,7 +47,7 @@ interface Access {
 
     companion object {
         /**
-         * Different implementations of [Access] can be used in different environments.
+         * The implementation of [Access] to be used.
          */
         lateinit var instance: Access
     }

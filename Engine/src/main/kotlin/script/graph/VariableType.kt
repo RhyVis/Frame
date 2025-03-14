@@ -1,6 +1,6 @@
-package rhx.frame.script.graph.node
+package rhx.frame.script.graph
 
-import rhx.frame.core.graph.ScriptException
+import rhx.frame.core.ScriptException
 import rhx.frame.core.graph.Value
 
 enum class VariableType {

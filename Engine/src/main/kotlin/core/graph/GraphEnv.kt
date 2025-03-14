@@ -2,8 +2,8 @@ package rhx.frame.core.graph
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import rhx.frame.annotation.OpenClass
-import rhx.frame.script.graph.node.FunctionDeclaration
-import rhx.frame.script.graph.node.VariableType
+import rhx.frame.script.graph.FunctionDeclaration
+import rhx.frame.script.graph.VariableType
 
 /**
  * Environment for graph execution, contains variables and functions.

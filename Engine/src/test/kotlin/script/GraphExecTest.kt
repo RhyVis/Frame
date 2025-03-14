@@ -1,12 +1,12 @@
 package script
 
 import org.junit.jupiter.api.BeforeAll
+import rhx.frame.core.GraphDict
+import rhx.frame.core.ScriptException
 import rhx.frame.core.graph.ExecMachine
-import rhx.frame.core.graph.ScriptException
 import rhx.frame.core.graph.SystemEnv
 import rhx.frame.init.AccessLoader
 import rhx.frame.init.DataLoader
-import rhx.frame.init.GraphDict
 import kotlin.test.Test
 import kotlin.test.expect
 import kotlin.time.measureTime
