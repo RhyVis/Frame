@@ -3,6 +3,7 @@
 package rhx.frame.core.graph
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import rhx.frame.interaction.Access
 import rhx.frame.script.graph.node.*
 
 /**
@@ -27,7 +28,18 @@ object ExecMachine : AutoCloseable {
     private var isContinueRequested = false
     private var jumpCounter = 0U
 
+    /**
+     * Maximum number of jumps allowed in a single [execScope] run.
+     * If the limit is exceeded, a [JumpLimitExceededException] is thrown.
+     *
+     * Prevents infinite loops caused by jumps.
+     */
     private const val MAX_JUMP_COUNT = 1000U
+
+    /**
+     * The terminal object to interaction with the user.
+     */
+    private val access by lazy { Access.instance }
 
     private val logger = KotlinLogging.logger("ExecMachine")
 
@@ -62,18 +74,18 @@ object ExecMachine : AutoCloseable {
                 .associate { (it.value as JumpMark).id to it.index }
 
         try {
-            var i = 0
-            while (i < statements.size) {
+            var stmtIndex = 0
+            while (stmtIndex < statements.size) {
                 try {
-                    execStatement(statements[i])
+                    execStatement(statements[stmtIndex])
                     if (returnBuf != Value.VOID || isBreakRequested) break
-                    i++
+                    stmtIndex++
                 } catch (e: JumpCalledException) {
                     jumpCounter++
                     if (jumpCounter > MAX_JUMP_COUNT) {
-                        throw JumpLimitExceededException("Jump limit exceeded at $scope in $statements, line $i")
+                        throw JumpLimitExceededException("Jump limit exceeded at $scope in $statements, line $stmtIndex")
                     }
-                    i = jumpMarks[e.targetId]
+                    stmtIndex = jumpMarks[e.targetId]
                         ?: throw JumpTargetNotFoundException("Jump mark ${e.targetId} not found")
                 }
             }
@@ -309,18 +321,12 @@ object ExecMachine : AutoCloseable {
     }
 
     private fun callReference(stmt: Reference) {
-        val compose = stmt.compose
-        println()
-        println(compose.name)
-        println()
-        compose.getAllParagraphs(env.localVarMap).forEach {
-            println(it)
-        }
+        access.displayComposePaused(stmt.compose, env.getAllVariables())
     }
 
     private fun registerInnerReflection() {
         SystemEnv.registerSystemCall("exec_func") { args ->
-            if (args.size < 2) throw IllegalArgumentException("exec_func requires a function name and arguments")
+            if (args.size < 2) throw ScriptException("exec_func requires a function name and arguments")
             val name = args[0].toString()
             val arguments = args.subList(1, args.size)
             execFunc(name, arguments)

@@ -185,7 +185,7 @@ class GraphNodeBuilder : graphBaseVisitor<Node>() {
         when {
             ctx.INT() != null -> IntegerLiteral(ctx.INT()!!.text.toLong())
             ctx.FLOAT() != null -> FloatLiteral(ctx.FLOAT()!!.text.toDouble())
-            ctx.STRING() != null -> StringLiteral(ctx.STRING()!!.text)
+            ctx.STRING() != null -> StringLiteral.create(ctx.STRING()!!.text)
             ctx.text == "null" -> NullLiteral
             ctx.text == "true" -> BoolLiteral.TRUE
             ctx.text == "false" -> BoolLiteral.FALSE
