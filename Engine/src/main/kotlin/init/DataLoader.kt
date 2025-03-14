@@ -4,12 +4,16 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import rhx.frame.core.graph.GlobalEnv
 import rhx.frame.exception.RuntimeIncompleteException
 import rhx.frame.io.GraphReader
+import rhx.frame.io.NodeLoader
 import rhx.frame.io.ScriptReader
 import rhx.frame.script.compose.TextCompose
 import rhx.frame.script.graph.node.GlobalFunctionDeclaration
 import rhx.frame.script.graph.node.ObjectTypeDeclaration
+import rhx.frame.script.graph.node.ProgramNode
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.exists
+import kotlin.io.path.getLastModifiedTime
 import kotlin.time.measureTime
 
 object DataLoader {
@@ -18,6 +22,7 @@ object DataLoader {
 
     private const val TEXT_COMPOSE_EXT_NAME = "frt"
     private const val GRAPH_EXT_NAME = "frg"
+    private const val DENSE_EXT_NAME = "frd"
 
     private val logger = KotlinLogging.logger("DataLoader")
 
@@ -92,7 +97,6 @@ object DataLoader {
 
     private fun walkComposeDir(dir: File) {
         dir.walkTopDown().filter { it.isFile && it.extension == TEXT_COMPOSE_EXT_NAME }.forEach { file ->
-            logger.debug { "Parsing ${file.name} as compose." }
             try {
                 processComposeFile(file)
             } catch (e: Exception) {
@@ -103,7 +107,6 @@ object DataLoader {
 
     private fun walkGraphDir(dir: File) {
         dir.walkTopDown().filter { it.isFile && it.extension == GRAPH_EXT_NAME }.forEach { file ->
-            logger.debug { "Parsing ${file.name} as graph." }
             try {
                 processGraphFile(file)
             } catch (e: Exception) {
@@ -125,27 +128,68 @@ object DataLoader {
     }
 
     private fun processGraphFile(file: File) {
+        val sourcePath = file.toPath()
+        val binaryPath = getBinaryPath(sourcePath)
+
+        if (isBinaryUpToDate(sourcePath, binaryPath)) {
+            logger.debug { "Loading graph from binary cache: $binaryPath" }
+            val node = NodeLoader.loadNode(binaryPath)
+            if (node is ProgramNode) {
+                registerGraphNode(node)
+                GraphDict[node.name] = node
+                return
+            } else {
+                logger.warn { "Binary cache invalid for ${file.name}, falling back to parsing" }
+            }
+        }
+
         GraphReader(file).use { reader ->
             val graph = reader.createGraph()
-
-            graph.statements.filterIsInstance<GlobalFunctionDeclaration>().forEach {
-                logger.debug { "Preloading Global Function Declaration ${it.name}" }
-                if (GlobalEnv.hasFunction(it.name)) {
-                    logger.warn { "Global function ${it.name} shadowed in ${graph.name}" }
-                }
-                GlobalEnv.declareGlobalFunction(it.name, it.toFunctionDeclaration())
-            }
-
-            graph.statements.filterIsInstance<ObjectTypeDeclaration>().forEach {
-                logger.debug { "Preloading Object Type Declaration ${it.name}" }
-                if (GlobalEnv.hasObjectType(it.name)) {
-                    logger.warn { "Object type ${it.name} shadowed in ${graph.name}" }
-                }
-                GlobalEnv.declareObjectType(it.name, it)
-            }
-
+            registerGraphNode(graph)
             GraphDict[graph.name] = graph
+
+            try {
+                NodeLoader.saveNode(graph, binaryPath)
+                logger.debug { "Saved binary cache for ${file.name}" }
+            } catch (e: Exception) {
+                logger.warn(e) { "Failed to save binary cache for ${file.name}" }
+            }
         }
+    }
+
+    private fun registerGraphNode(graph: ProgramNode) {
+        graph.statements.filterIsInstance<GlobalFunctionDeclaration>().forEach {
+            logger.debug { "Preloading Global Function Declaration ${it.name}" }
+            if (GlobalEnv.hasFunction(it.name)) {
+                logger.warn { "Global function ${it.name} shadowed in ${graph.name}" }
+            }
+            GlobalEnv.declareGlobalFunction(it.name, it.toFunctionDeclaration())
+        }
+
+        graph.statements.filterIsInstance<ObjectTypeDeclaration>().forEach {
+            logger.debug { "Preloading Object Type Declaration ${it.name}" }
+            if (GlobalEnv.hasObjectType(it.name)) {
+                logger.warn { "Object type ${it.name} shadowed in ${graph.name}" }
+            }
+            GlobalEnv.declareObjectType(it.name, it)
+        }
+    }
+
+    private fun getBinaryPath(sourcePath: Path): Path {
+        val sourcePathStr = sourcePath.toString()
+        val binaryPathStr = sourcePathStr.substring(0, sourcePathStr.length - GRAPH_EXT_NAME.length) + DENSE_EXT_NAME
+        return Path.of(binaryPathStr)
+    }
+
+    private fun isBinaryUpToDate(
+        sourcePath: Path,
+        binaryPath: Path,
+    ): Boolean {
+        if (!binaryPath.exists()) return false
+        val sourceLastModified = sourcePath.getLastModifiedTime()
+        val binaryLastModified = binaryPath.getLastModifiedTime()
+
+        return sourceLastModified < binaryLastModified
     }
 
     private fun reset() {

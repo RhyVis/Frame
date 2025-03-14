@@ -1,19 +1,24 @@
 package rhx.frame.script.graph.node
 
+import kotlinx.serialization.Serializable
 import rhx.frame.init.GraphDict
 import rhx.frame.init.TextDict
 import rhx.frame.script.compose.TextCompose
 
 // region Node
 
+@Serializable
 sealed class Node
 
+@Serializable
 data object EmptyNode : Node()
 
+@Serializable
 data class NameNode(
     val name: String,
 ) : Node()
 
+@Serializable
 data class ProgramNode(
     val name: String,
     val statements: List<Statement>,
@@ -26,8 +31,10 @@ data class ProgramNode(
 
 // region Statement
 
+@Serializable
 sealed class Statement : Node()
 
+@Serializable
 data class Reference(
     val name: String,
 ) : Statement() {
@@ -35,6 +42,7 @@ data class Reference(
         get() = TextDict[name] ?: error("TextCompose $name not found.")
 }
 
+@Serializable
 data class CallGraphStatement(
     val name: String,
 ) : Statement() {
@@ -42,38 +50,45 @@ data class CallGraphStatement(
         get() = GraphDict[name] ?: error("Graph $name not found.")
 }
 
+@Serializable
 data class JumpMark(
     val id: String,
 ) : Statement()
 
+@Serializable
 data class JumpStatement(
     val targetId: String,
     val condition: Expression,
 ) : Statement()
 
+@Serializable
 data class VariableDeclaration(
     val name: String,
     val type: VariableType,
     val expr: Expression?,
 ) : Statement()
 
+@Serializable
 data class VariableAssignment(
     val name: String,
     val expression: Expression,
 ) : Statement()
 
+@Serializable
 data class ObjectFieldAssignment(
     val target: Expression,
     val fieldName: String,
     val expression: Expression,
 ) : Statement()
 
+@Serializable
 data class ObjectTypeDeclaration(
     val name: String,
     val fields: List<VariableDeclaration>,
     val methods: List<FunctionDeclaration>,
 ) : Statement()
 
+@Serializable
 data class ConditionalStatement(
     val conditions: List<Pair<Expression, List<Statement>>>,
 ) : Statement(),
@@ -81,6 +96,7 @@ data class ConditionalStatement(
     override fun iterator(): Iterator<Pair<Expression, List<Statement>>> = conditions.iterator()
 }
 
+@Serializable
 data class LoopStatement(
     val condition: Expression,
     val body: List<Statement>,
@@ -89,14 +105,18 @@ data class LoopStatement(
     override fun iterator(): Iterator<Statement> = body.iterator()
 }
 
+@Serializable
 data object LoopBreakStatement : Statement()
 
+@Serializable
 data object LoopContinueStatement : Statement()
 
+@Serializable
 data class ReturnStatement(
     val expression: Expression?,
 ) : Statement()
 
+@Serializable
 data class FunctionDeclaration(
     val name: String,
     val parameters: List<String>,
@@ -107,6 +127,7 @@ data class FunctionDeclaration(
     override fun iterator(): Iterator<Statement> = body.iterator()
 }
 
+@Serializable
 data class GlobalFunctionDeclaration(
     val name: String,
     val parameters: List<String>,
@@ -119,6 +140,7 @@ data class GlobalFunctionDeclaration(
     fun toFunctionDeclaration() = FunctionDeclaration(name, parameters, returnType, body)
 }
 
+@Serializable
 data class SystemCall(
     val name: String,
     val arguments: List<Expression>,
@@ -127,6 +149,7 @@ data class SystemCall(
     override fun iterator(): Iterator<Expression> = arguments.iterator()
 }
 
+@Serializable
 data class FunctionCall(
     val name: String,
     val arguments: List<Expression>,
@@ -135,6 +158,7 @@ data class FunctionCall(
     override fun iterator(): Iterator<Expression> = arguments.iterator()
 }
 
+@Serializable
 data class ObjectMethodCall(
     val target: Expression,
     val methodName: String,
@@ -144,30 +168,50 @@ data class ObjectMethodCall(
     override fun iterator(): Iterator<Expression> = arguments.iterator()
 }
 
+@Serializable
 data object TerminateStatement : Statement()
 
 // endregion
 
 // region Expression
 
+@Serializable
 sealed class Expression : Node()
 
+@Serializable
 data class VariableReference(
     val name: String,
 ) : Expression()
 
+@Serializable
 data class IntegerLiteral(
     val value: Long,
 ) : Expression()
 
+@Serializable
 data class FloatLiteral(
     val value: Double,
 ) : Expression()
 
+@Serializable
 data class StringLiteral(
     val value: String,
-) : Expression()
+) : Expression() {
+    companion object {
+        private val EMPTY = StringLiteral("")
 
+        fun create(value: String): StringLiteral {
+            val content = value.substring(1, value.length - 1)
+            return if (content.isEmpty()) {
+                EMPTY
+            } else {
+                StringLiteral(content)
+            }
+        }
+    }
+}
+
+@Serializable
 data class BoolLiteral(
     val value: Boolean,
 ) : Expression() {
@@ -177,8 +221,10 @@ data class BoolLiteral(
     }
 }
 
+@Serializable
 data object NullLiteral : Expression()
 
+@Serializable
 data class ObjectInstantiationExpression(
     val typeName: String,
     val fields: List<Expression>,
@@ -187,6 +233,7 @@ data class ObjectInstantiationExpression(
     override fun iterator(): Iterator<Expression> = fields.iterator()
 }
 
+@Serializable
 data class SystemCallExpression(
     val name: String,
     val arguments: List<Expression>,
@@ -195,6 +242,7 @@ data class SystemCallExpression(
     override fun iterator(): Iterator<Expression> = arguments.iterator()
 }
 
+@Serializable
 data class FunctionCallExpression(
     val name: String,
     val arguments: List<Expression>,
@@ -203,11 +251,13 @@ data class FunctionCallExpression(
     override fun iterator(): Iterator<Expression> = arguments.iterator()
 }
 
+@Serializable
 data class ObjectFieldAccessExpression(
     val target: Expression,
     val fieldName: String,
 ) : Expression()
 
+@Serializable
 data class ObjectMethodCallExpression(
     val target: Expression,
     val methodName: String,
@@ -217,17 +267,20 @@ data class ObjectMethodCallExpression(
     override fun iterator(): Iterator<Expression> = arguments.iterator()
 }
 
+@Serializable
 data class BinaryOperation(
     val left: Expression,
     val operator: Operator,
     val right: Expression,
 ) : Expression()
 
+@Serializable
 data class UnaryOperation(
     val operator: SelfOperator,
     val expression: Expression,
 ) : Expression()
 
+@Serializable
 data class ParenthesizedExpression(
     val expression: Expression,
 ) : Expression()

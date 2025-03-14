@@ -25,6 +25,7 @@
                 <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.1.10/d3028429e7151d7a7c1a0d63a4f60eac86a87b91/kotlin-stdlib-2.1.10.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/2.1.10/70000e6ef453308e55d42ea4ace5b8c32325ce75/kotlin-script-runtime-2.1.10.jar</arg>
+                <arg>$KOTLIN_BUNDLED$/lib/kotlinx-serialization-compiler-plugin.jar</arg>
                 <arg>$KOTLIN_BUNDLED$/lib/allopen-compiler-plugin.jar</arg>
               </args>
             </arrayArg>
@@ -52,6 +53,7 @@
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.5.17" level="project" />
     <orderEntry type="library" name="Gradle: io.github.oshai:kotlin-logging-jvm:7.0.5" level="project" />
     <orderEntry type="library" name="Gradle: com.strumenta:antlr-kotlin-runtime-jvm:1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-protobuf-jvm:1.8.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:23.0.0" level="project" />

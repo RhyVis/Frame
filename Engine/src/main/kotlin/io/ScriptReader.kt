@@ -11,7 +11,6 @@ class ScriptReader(
     constructor(file: File) : this(file.inputStream())
 
     private var paragraphCounter: UInt = 0u
-    private val paragraphNamePattern = Regex("^\\[(\\w+)]$")
 
     fun createTextCompose(): TextCompose {
         val meta: String
@@ -23,32 +22,39 @@ class ScriptReader(
             }
 
         val paragraphs = mutableListOf<Paragraph>()
-        var currentParagraph = Paragraph(paragraphCounter++)
+        var currentParagraph: Paragraph? = null
         var currentParagraphName: String?
+        var anonymousCounter = 0
 
         for (line in content) {
-            if (line.isBlank()) {
-                if (currentParagraph.iterator().hasNext()) {
+            // Check if this is a paragraph name declaration
+            val nameMatch = paragraphNamePattern.find(line)
+            val anonymousMatch = anonymousParagraphPattern.find(line)
+
+            if (nameMatch != null) {
+                // If we have a current paragraph with content, add it to paragraphs
+                if (currentParagraph != null && currentParagraph.iterator().hasNext()) {
                     paragraphs.add(currentParagraph)
-                    currentParagraph = Paragraph(paragraphCounter++)
                 }
-            } else {
-                // Check if this is a paragraph name declaration
-                val nameMatch = paragraphNamePattern.find(line)
-                if (nameMatch != null) {
-                    // If we have content in the current paragraph, add it and create new
-                    if (currentParagraph.iterator().hasNext()) {
-                        paragraphs.add(currentParagraph)
-                    }
-                    currentParagraphName = nameMatch.groupValues[1]
-                    currentParagraph = Paragraph(paragraphCounter++, currentParagraphName)
-                } else {
-                    currentParagraph.addLine(line)
+                // Create a new paragraph with the name
+                currentParagraphName = nameMatch.groupValues[1]
+                currentParagraph = Paragraph(paragraphCounter++, currentParagraphName)
+            } else if (anonymousMatch != null) {
+                // If we have a current paragraph with content, add it to paragraphs
+                if (currentParagraph != null && currentParagraph.iterator().hasNext()) {
+                    paragraphs.add(currentParagraph)
                 }
+                // Create a new anonymous paragraph with a generated name
+                currentParagraphName = "anonymous_${anonymousCounter++}"
+                currentParagraph = Paragraph(paragraphCounter++, currentParagraphName)
+            } else if (line.isNotBlank() && currentParagraph != null) {
+                // Only add non-blank lines to the current paragraph
+                currentParagraph.addLine(line)
             }
         }
 
-        if (currentParagraph.iterator().hasNext()) {
+        // Add the last paragraph if it exists and has content
+        if (currentParagraph != null && currentParagraph.iterator().hasNext()) {
             paragraphs.add(currentParagraph)
         }
 
@@ -57,5 +63,10 @@ class ScriptReader(
 
     override fun close() {
         stream.close()
+    }
+
+    companion object {
+        private val paragraphNamePattern = Regex("^\\[(\\w+)]$")
+        private val anonymousParagraphPattern = Regex("^``$")
     }
 }

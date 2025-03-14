@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.jvm)
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.antlr)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 group = "rhx.frame"

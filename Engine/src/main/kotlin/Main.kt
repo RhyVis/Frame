@@ -2,14 +2,15 @@ package rhx.frame
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import rhx.frame.core.EnginePlayer
-import rhx.frame.core.graph.ExecMachine
+import rhx.frame.core.graph.SystemEnv
+import rhx.frame.init.AccessLoader
 import rhx.frame.init.DataLoader
-import rhx.frame.init.GraphDict
-import rhx.frame.init.TextDict
 
 fun main() {
     GlobalLogger.info { "Frame Engine initializing." }
 
+    AccessLoader.load()
+    SystemEnv.load()
     DataLoader.load()
 
     println()

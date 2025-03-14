@@ -1,8 +1,11 @@
 package rhx.frame.script.basic
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Paragraph(
     val id: UInt,
-    val name: String? = null,
+    val name: String,
 ) : Iterable<Line> {
     private val lines = mutableListOf<Line>()
 
