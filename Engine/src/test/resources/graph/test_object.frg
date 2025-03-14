@@ -1,11 +1,11 @@
 $test_object
 
-:Object{*field:i}
-*object:o = *Object("No type check at all")
-#println(object.to_string())
+:Object{*field:int32}
+*let: object = *Object("No type check at all")
+#println(let.to_string())
 
 :TestObject{
-    *field:i
+    *field:int32
     @add_self() {
         this.field = this.field + 1
     }
@@ -13,7 +13,7 @@ $test_object
         :: #to_string(this)
     }
 }
-*object:o = *TestObject(1)
-#println(object.to_string())
-object.add_self()
-#println(object.to_string())
+*let: object = *TestObject(1)
+#println(let.to_string())
+let.add_self()
+#println(let.to_string())

@@ -82,6 +82,20 @@ class GraphExecTest {
         }
     }
 
+    @Test
+    fun testFunc() {
+        println()
+        println("==== Testing Function ====")
+        val funcGraph = GraphDict["test_func"] ?: error("Graph test_func not found")
+        measureTime {
+            ExecMachine.use {
+                it.execScope(funcGraph.statements)
+            }
+        }.also {
+            println("Executed in ${it.inWholeMilliseconds} ms.")
+        }
+    }
+
     companion object {
         @JvmStatic
         @BeforeAll
