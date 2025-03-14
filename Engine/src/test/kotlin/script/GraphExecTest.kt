@@ -3,6 +3,8 @@ package script
 import org.junit.jupiter.api.BeforeAll
 import rhx.frame.core.graph.ExecMachine
 import rhx.frame.core.graph.ScriptException
+import rhx.frame.core.graph.SystemEnv
+import rhx.frame.init.AccessLoader
 import rhx.frame.init.DataLoader
 import rhx.frame.init.GraphDict
 import kotlin.test.Test
@@ -70,12 +72,24 @@ class GraphExecTest {
         }
     }
 
+    @Test
+    fun testGlobalFunc() {
+        println()
+        println("==== Testing Global Function ====")
+        val globalFuncGraph = GraphDict["test_global_function_call"] ?: error("Graph test_global_function_call not found")
+        ExecMachine.use {
+            it.execScope(globalFuncGraph.statements)
+        }
+    }
+
     companion object {
         @JvmStatic
         @BeforeAll
         fun setup() {
             println("==== Setup Environment ====")
             try {
+                AccessLoader.load()
+                SystemEnv.load()
                 DataLoader.loadFromClasspath()
             } catch (e: Exception) {
                 e.printStackTrace()
