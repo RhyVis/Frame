@@ -3,7 +3,9 @@ package rhx.frame.script.graph
 import kotlinx.serialization.Serializable
 import rhx.frame.core.GraphDict
 import rhx.frame.core.TextDict
+import rhx.frame.core.graph.Value
 import rhx.frame.script.compose.Compose
+import rhx.frame.script.compose.MappedParagraph
 
 // region Node
 
@@ -37,10 +39,34 @@ sealed class Statement : Node()
 @Serializable
 data class Reference(
     val name: String,
+    val refName: String? = null,
+    val refId: Int? = null,
 ) : Statement() {
+    constructor(name: String, arg: ReferenceArg) : this(name, arg.refName, arg.refId)
+
     val compose: Compose
         get() = TextDict[name] ?: error("TextCompose $name not found.")
+
+    val hasRef: Boolean
+        get() = refName != null || refId != null
+
+    fun getParagraph(values: Map<String, Value>): MappedParagraph =
+        if (hasRef) {
+            when {
+                refId != null -> compose.getParagraph(refId, values)
+                refName != null -> compose.getParagraph(refName, values)
+                else -> throw IllegalStateException("Reference $name has no refName or refId")
+            }
+        } else {
+            MappedParagraph.EMPTY
+        }
 }
+
+@Serializable
+data class ReferenceArg(
+    val refName: String? = null,
+    val refId: Int? = null,
+) : Node()
 
 @Serializable
 data class CallGraphStatement(

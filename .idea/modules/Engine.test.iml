@@ -51,6 +51,7 @@
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test:2.1.10" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:2.1.10" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.5.17" level="project" />
+    <orderEntry type="library" name="Gradle: org.jline:jline:3.29.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test-junit5:2.1.10" level="project" />
     <orderEntry type="library" name="Gradle: io.github.oshai:kotlin-logging-jvm:7.0.5" level="project" />
     <orderEntry type="library" name="Gradle: com.strumenta:antlr-kotlin-runtime-jvm:1.0.0" level="project" />

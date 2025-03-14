@@ -15,7 +15,7 @@ fun main() {
 
     println()
 
-    val player = EnginePlayer()
+    EnginePlayer()
 }
 
 internal val GlobalLogger = KotlinLogging.logger("Engine")

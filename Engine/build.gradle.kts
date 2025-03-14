@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.bundles.log)
     implementation(libs.antlr.kotlin)
     implementation(libs.bundles.kotlinx)
+    implementation(libs.jline)
     testImplementation(kotlin("test"))
 }
 

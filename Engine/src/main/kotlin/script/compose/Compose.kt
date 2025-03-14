@@ -49,6 +49,26 @@ data class Compose(
     }
 
     /**
+     * Access the content of a paragraph by id.
+     *
+     * @param id paragraph id
+     * @param values values to replace the placeholders
+     *
+     * @return [MappedParagraph]
+     */
+    fun getParagraph(
+        id: Int,
+        values: Map<String, Value>,
+    ): MappedParagraph {
+        val paragraph = paragraphs[id]
+        return if (values.isEmpty()) {
+            MappedParagraph(paragraph.name, paragraph.getContent())
+        } else {
+            MappedParagraph(paragraph.name, paragraph.getContent().map { replacePlaceholders(it, values) })
+        }
+    }
+
+    /**
      * Access the content of all paragraphs.
      *
      * @param values values to replace the placeholders

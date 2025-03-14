@@ -21,7 +21,22 @@ class GraphNodeBuilder : graphBaseVisitor<Node>() {
 
     override fun visitName(ctx: NameContext): Node = NameNode(ctx.ID().text)
 
-    override fun visitReference(ctx: ReferenceContext): Node = Reference(ctx.ID().text)
+    override fun visitReference(ctx: ReferenceContext): Node =
+        if (ctx.referenceArg() != null) {
+            Reference(ctx.ID().text, visit(ctx.referenceArg()!!) as ReferenceArg)
+        } else {
+            Reference(ctx.ID().text)
+        }
+
+    override fun visitReferenceArg(ctx: ReferenceArgContext): Node =
+        when {
+            ctx.INT() != null -> ReferenceArg(refId = ctx.INT()!!.text.toInt())
+            ctx.STRING() != null -> {
+                val textWrap = ctx.STRING()!!.text
+                ReferenceArg(refName = textWrap.substring(1, textWrap.length - 1))
+            }
+            else -> throw IllegalArgumentException("Unknown reference argument: ${ctx.text}")
+        }
 
     override fun visitCallGraph(ctx: CallGraphContext): Node = CallGraphStatement(ctx.ID().text)
 

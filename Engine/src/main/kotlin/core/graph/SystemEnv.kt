@@ -113,9 +113,8 @@ object SystemEnv {
      * Wait for input function, returns input string
      */
     private val waitInput = { args: List<Value> ->
-        val message = if (args.isNotEmpty()) args[0].toString() else "Press any key to continue..."
-        access.displayLn(message)
-        val key = access.waitForInput()
+        val prompt = if (args.isNotEmpty()) args[0].toString() else ""
+        val key = access.waitForInput(prompt)
         Value.createString(key)
     }
 

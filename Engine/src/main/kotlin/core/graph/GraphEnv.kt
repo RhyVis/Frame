@@ -36,8 +36,6 @@ class GraphEnv(
      *
      * @param name variable name
      * @param value variable value
-     *
-     * @throws IllegalArgumentException if variable not found
      */
     fun setVariable(
         name: String,

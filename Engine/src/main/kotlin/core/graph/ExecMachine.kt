@@ -362,7 +362,12 @@ object ExecMachine : AutoCloseable {
     }
 
     private fun callReference(stmt: Reference) {
-        access.displayComposePaused(stmt.compose, env.getAllVariables())
+        if (stmt.hasRef) {
+            val p = stmt.getParagraph(env.getAllVariables())
+            access.displayParagraph(p)
+        } else {
+            access.displayCompose(stmt.compose, env.getAllVariables())
+        }
     }
 
     private fun registerInnerReflection() {

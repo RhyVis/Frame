@@ -34,7 +34,12 @@ name
     ;
 
 reference
-    : '&[' ID ']' ';'? NEWLINE?
+    : '&[' ID ']' ('[' referenceArg ']')? ';'? NEWLINE?
+    ;
+
+referenceArg
+    : INT
+    | STRING
     ;
 
 callGraph
