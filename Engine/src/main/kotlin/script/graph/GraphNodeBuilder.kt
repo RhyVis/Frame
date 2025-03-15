@@ -85,11 +85,44 @@ class GraphNodeBuilder : graphBaseVisitor<Node>() {
 
     override fun visitVariableAssignment(ctx: VariableAssignmentContext): Node {
         val fieldAccess = visit(ctx.fieldAccess())
-        val expression = visit(ctx.expression()) as Expression
+
+        if (ctx.INCREMENT() != null || ctx.DECREMENT() != null) {
+            val operator = if (ctx.INCREMENT() != null) SelfOperator.INCREMENT else SelfOperator.DECREMENT
+
+            return when (fieldAccess) {
+                is VariableReference -> VariableSelfOperation(fieldAccess.name, operator)
+                is ObjectFieldAccessExpression -> ObjectFieldSelfOperation(fieldAccess.target, fieldAccess.fieldName, operator)
+                else -> throw IllegalArgumentException("Unknown field access type $fieldAccess")
+            }
+        }
+
+        val expression = visit(ctx.expression()!!) as Expression
+        val operator =
+            when {
+                ctx.PLUS_EQ() != null -> Operator.PLUS_ASSIGN
+                ctx.MINUS_EQ() != null -> Operator.MINUS_ASSIGN
+                ctx.MULT_EQ() != null -> Operator.MULTIPLY_ASSIGN
+                ctx.DIV_EQ() != null -> Operator.DIVIDE_ASSIGN
+                ctx.MOD_EQ() != null -> Operator.MODULO_ASSIGN
+                else -> null
+            }
+
         return when (fieldAccess) {
-            is VariableReference -> VariableAssignment(ctx.fieldAccess().ID()[0].text, expression)
-            is ObjectFieldAccessExpression -> ObjectFieldAssignment(fieldAccess.target, fieldAccess.fieldName, expression)
-            else -> throw IllegalArgumentException("Unknown field access type")
+            is VariableReference -> {
+                if (operator != null) {
+                    VariableCompoundAssignment(fieldAccess.name, operator, expression)
+                } else {
+                    VariableAssignment(fieldAccess.name, expression)
+                }
+            }
+            is ObjectFieldAccessExpression -> {
+                if (operator != null) {
+                    ObjectFieldCompoundAssignment(fieldAccess.target, fieldAccess.fieldName, operator, expression)
+                } else {
+                    ObjectFieldAssignment(fieldAccess.target, fieldAccess.fieldName, expression)
+                }
+            }
+            else -> throw IllegalArgumentException("Unknown field access type $fieldAccess")
         }
     }
 
@@ -126,6 +159,7 @@ class GraphNodeBuilder : graphBaseVisitor<Node>() {
             "bool" -> VariableType.BOOL
             "string" -> VariableType.STRING
             "object" -> VariableType.OBJECT
+            "any" -> VariableType.ANY
             else -> null
         }
 
@@ -179,6 +213,7 @@ class GraphNodeBuilder : graphBaseVisitor<Node>() {
                         "-" -> Operator.SUBTRACT
                         "*" -> Operator.MULTIPLY
                         "/" -> Operator.DIVIDE
+                        "%" -> Operator.MODULO
                         "==" -> Operator.EQUALS
                         "!=" -> Operator.NOT_EQUALS
                         ">" -> Operator.GREATER_THAN

@@ -13,8 +13,6 @@ import kotlin.io.path.outputStream
 
 @OptIn(ExperimentalSerializationApi::class)
 object NodeLoader {
-    private const val BINARY_EXT_NAME = "frd"
-
     private val logger = KotlinLogging.logger("NodeLoader")
 
     fun saveNode(

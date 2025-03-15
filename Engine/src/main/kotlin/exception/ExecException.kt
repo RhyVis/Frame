@@ -1,11 +1,9 @@
-package rhx.frame.core
-
-import rhx.frame.exception.BaseRuntimeException
+package rhx.frame.exception
 
 open class GraphExecException(
     message: String,
     cause: Throwable? = null,
-) : BaseRuntimeException(message, cause)
+) : EngineException(message, cause)
 
 class JumpCalledException(
     val targetId: String,

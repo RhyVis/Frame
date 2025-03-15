@@ -59,7 +59,8 @@ variableDeclaration
     ;
 
 variableAssignment
-    : fieldAccess '=' expression ';'? NEWLINE?
+    : fieldAccess ('='|'+='|'-='|'*='|'/='|'%=') expression ';'? NEWLINE?
+    | fieldAccess ('++'|'--') ';'? NEWLINE?
     ;
 
 fieldAccess
@@ -137,7 +138,7 @@ expression
     | '(' expression ')'
     | '!' expression
     | '-' expression
-    | expression ('*'|'/') expression
+    | expression ('*'|'/'|'%') expression
     | expression ('+'|'-') expression
     | expression ('<'|'>'|'<='|'>=') expression
     | expression ('=='|'!=') expression
@@ -177,7 +178,7 @@ terminateStatement
     ;
 
 // Lexer Rules
-TYPE : 'int32' | 'int64' | 'float' | 'bool' | 'string' | 'object';
+TYPE : 'int32' | 'int64' | 'float' | 'bool' | 'string' | 'object' | 'any' ;
 ID : [a-zA-Z_][a-zA-Z0-9_]* ;
 INT32 : [0-9]+ ;
 INT64 : [0-9]+ 'L' ;
@@ -196,3 +197,11 @@ GT : '>' ;
 LT : '<' ;
 GE : '>=' ;
 LE : '<=' ;
+PLUS_EQ : '+=' ;
+MINUS_EQ : '-=' ;
+MULT_EQ : '*=' ;
+DIV_EQ : '/=' ;
+MOD_EQ : '%=' ;
+INCREMENT : '++' ;
+DECREMENT : '--' ;
+MOD : '%' ;

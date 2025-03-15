@@ -2,9 +2,9 @@ package script
 
 import org.junit.jupiter.api.BeforeAll
 import rhx.frame.core.GraphDict
-import rhx.frame.core.ScriptException
 import rhx.frame.core.graph.ExecMachine
 import rhx.frame.core.graph.SystemEnv
+import rhx.frame.exception.ScriptException
 import rhx.frame.init.AccessLoader
 import rhx.frame.init.DataLoader
 import kotlin.test.Test
@@ -93,6 +93,16 @@ class GraphExecTest {
             }
         }.also {
             println("Executed in ${it.inWholeMilliseconds} ms.")
+        }
+    }
+
+    @Test
+    fun testSelfOpt() {
+        println()
+        println("==== Testing Self Operation ====")
+        val selfOperationGraph = GraphDict["test_self_opt"] ?: error("Graph test_self_opt not found")
+        ExecMachine.use {
+            it.execScope(selfOperationGraph.statements)
         }
     }
 

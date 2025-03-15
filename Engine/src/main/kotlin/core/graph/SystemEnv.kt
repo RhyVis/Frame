@@ -1,6 +1,6 @@
 package rhx.frame.core.graph
 
-import rhx.frame.core.ScriptException
+import rhx.frame.exception.ScriptException
 import rhx.frame.init.DataLoader
 import rhx.frame.interaction.Access
 
@@ -26,6 +26,7 @@ object SystemEnv {
         systemCallMap =
             mutableMapOf(
                 "except" to except,
+                "assert" to assert,
                 "to_string" to toStringSys,
                 "print" to print,
                 "println" to printLn,
@@ -74,6 +75,14 @@ object SystemEnv {
      */
     private val except = { args: List<Value> ->
         throw ScriptException(args.joinToString(" ") { it.toString() })
+    }
+
+    private val assert = { args: List<Value> ->
+        val condition = args[0].isTrue
+        if (!condition) {
+            throw ScriptException("Assertion failed: ${args[1]}")
+        }
+        Value.VOID
     }
 
     /**

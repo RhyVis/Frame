@@ -221,6 +221,36 @@ sealed class Value {
             else -> throw IllegalArgumentException("Unsupported operation: $this / $other")
         }
 
+    operator fun rem(other: Value): Value =
+        when {
+            this is Int32Value && other is Int32Value -> createInt32(this.value % other.value)
+            this is Int32Value && other is Int64Value -> createInt64(this.value.toLong() % other.value)
+            this is Int32Value && other is FloatValue -> createFloat(this.value.toDouble() % other.value)
+            this is Int64Value && other is Int32Value -> createInt64(this.value % other.value.toLong())
+            this is Int64Value && other is Int64Value -> createInt64(this.value % other.value)
+            this is Int64Value && other is FloatValue -> createFloat(this.value.toDouble() % other.value)
+            this is FloatValue && other is Int32Value -> createFloat(this.value % other.value.toDouble())
+            this is FloatValue && other is Int64Value -> createFloat(this.value % other.value.toDouble())
+            this is FloatValue && other is FloatValue -> createFloat(this.value % other.value)
+            else -> throw IllegalArgumentException("Unsupported operation: $this % $other")
+        }
+
+    operator fun inc(): Value =
+        when (this) {
+            is Int32Value -> createInt32(this.value + 1)
+            is Int64Value -> createInt64(this.value + 1)
+            is FloatValue -> createFloat(this.value + 1)
+            else -> throw IllegalArgumentException("Unsupported operation: ++$this")
+        }
+
+    operator fun dec(): Value =
+        when (this) {
+            is Int32Value -> createInt32(this.value - 1)
+            is Int64Value -> createInt64(this.value - 1)
+            is FloatValue -> createFloat(this.value - 1)
+            else -> throw IllegalArgumentException("Unsupported operation: --$this")
+        }
+
     operator fun compareTo(other: Value): Int =
         when {
             this is Int32Value && other is Int32Value -> this.value.compareTo(other.value)
