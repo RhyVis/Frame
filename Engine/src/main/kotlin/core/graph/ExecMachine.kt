@@ -19,7 +19,8 @@ import rhx.frame.script.graph.FunctionCall
 import rhx.frame.script.graph.FunctionCallExpression
 import rhx.frame.script.graph.FunctionDeclaration
 import rhx.frame.script.graph.GlobalFunctionDeclaration
-import rhx.frame.script.graph.IntegerLiteral
+import rhx.frame.script.graph.Int32Literal
+import rhx.frame.script.graph.Int64Literal
 import rhx.frame.script.graph.JumpMark
 import rhx.frame.script.graph.JumpStatement
 import rhx.frame.script.graph.LoopBreakStatement
@@ -175,7 +176,8 @@ object ExecMachine : AutoCloseable {
     private fun evalExpr(expr: Expression): Value =
         when (expr) {
             is VariableReference -> env.getVariable(expr.name)
-            is IntegerLiteral -> Value.createInt64(expr.value)
+            is Int32Literal -> Value.createInt32(expr.value)
+            is Int64Literal -> Value.createInt64(expr.value)
             is FloatLiteral -> Value.createFloat(expr.value)
             is StringLiteral -> Value.createString(expr.value)
             is BoolLiteral -> Value.createBool(expr.value)

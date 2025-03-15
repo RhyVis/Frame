@@ -1,5 +1,5 @@
 $test_jump
-*flag:i=0
+*flag:int32=0
 @loop() {
     %[return]
     flag = flag + 1

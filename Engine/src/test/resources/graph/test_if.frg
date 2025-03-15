@@ -1,5 +1,5 @@
 $test_if
-*var:f
+*var:int32
 var=1
 ~(var<0){
     #println(var)
@@ -8,7 +8,7 @@ var=1
     #println("Var greater than -1")
 }
 
-*let:i
+*let:int32
 let=999
 
 ?(let == 0) {

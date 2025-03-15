@@ -210,7 +210,12 @@ data class VariableReference(
 ) : Expression()
 
 @Serializable
-data class IntegerLiteral(
+data class Int32Literal(
+    val value: Int,
+) : Expression()
+
+@Serializable
+data class Int64Literal(
     val value: Long,
 ) : Expression()
 

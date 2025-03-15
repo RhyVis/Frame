@@ -38,7 +38,7 @@ reference
     ;
 
 referenceArg
-    : INT
+    : INT32
     | STRING
     ;
 
@@ -146,7 +146,8 @@ expression
     ;
 
 literal
-    : INT
+    : INT32
+    | INT64
     | FLOAT
     | STRING
     | 'null'
@@ -176,9 +177,10 @@ terminateStatement
     ;
 
 // Lexer Rules
-TYPE : 'i' | 'l' | 'f' | 'b' | 's' | 'o';
+TYPE : 'int32' | 'int64' | 'float' | 'bool' | 'string' | 'object';
 ID : [a-zA-Z_][a-zA-Z0-9_]* ;
-INT : [0-9]+ ;
+INT32 : [0-9]+ ;
+INT64 : [0-9]+ 'L' ;
 FLOAT : [0-9]+ '.' [0-9]+ ;
 STRING : '"' .*? '"' ;
 NEWLINE : '\r'? '\n' | '\r' ;

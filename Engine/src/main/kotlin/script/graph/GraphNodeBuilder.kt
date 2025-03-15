@@ -30,7 +30,7 @@ class GraphNodeBuilder : graphBaseVisitor<Node>() {
 
     override fun visitReferenceArg(ctx: ReferenceArgContext): Node =
         when {
-            ctx.INT() != null -> ReferenceArg(refId = ctx.INT()!!.text.toInt())
+            ctx.INT32() != null -> ReferenceArg(refId = ctx.INT32()!!.text.toInt())
             ctx.STRING() != null -> {
                 val textWrap = ctx.STRING()!!.text
                 ReferenceArg(refName = textWrap.substring(1, textWrap.length - 1))
@@ -120,12 +120,12 @@ class GraphNodeBuilder : graphBaseVisitor<Node>() {
 
     private fun mapType(type: String?) =
         when (type) {
-            "i" -> VariableType.INT32
-            "l" -> VariableType.INT64
-            "f" -> VariableType.FLOAT
-            "b" -> VariableType.BOOL
-            "s" -> VariableType.STRING
-            "o" -> VariableType.OBJECT
+            "int32" -> VariableType.INT32
+            "int64" -> VariableType.INT64
+            "float" -> VariableType.FLOAT
+            "bool" -> VariableType.BOOL
+            "string" -> VariableType.STRING
+            "object" -> VariableType.OBJECT
             else -> null
         }
 
@@ -198,7 +198,8 @@ class GraphNodeBuilder : graphBaseVisitor<Node>() {
 
     override fun visitLiteral(ctx: LiteralContext): Node =
         when {
-            ctx.INT() != null -> IntegerLiteral(ctx.INT()!!.text.toLong())
+            ctx.INT32() != null -> Int32Literal(ctx.INT32()!!.text.toInt())
+            ctx.INT64() != null -> Int64Literal(ctx.INT64()!!.text.toLong())
             ctx.FLOAT() != null -> FloatLiteral(ctx.FLOAT()!!.text.toDouble())
             ctx.STRING() != null -> StringLiteral.create(ctx.STRING()!!.text)
             ctx.text == "null" -> NullLiteral
