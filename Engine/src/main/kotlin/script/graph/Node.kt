@@ -95,8 +95,35 @@ data class VariableDeclaration(
 ) : Statement()
 
 @Serializable
+data class VariableCompoundAssignment(
+    val name: String,
+    val operator: Operator,
+    val expression: Expression,
+) : Statement()
+
+@Serializable
 data class VariableAssignment(
     val name: String,
+    val expression: Expression,
+) : Statement()
+
+@Serializable
+data class VariableSelfOperation(
+    val name: String,
+    val operator: SelfOperator,
+) : Statement()
+
+@Serializable
+data class ObjectFieldSelfOperation(
+    val target: Expression,
+    val fieldName: String,
+    val operator: SelfOperator,
+) : Statement()
+
+data class ObjectFieldCompoundAssignment(
+    val target: Expression,
+    val fieldName: String,
+    val operator: Operator,
     val expression: Expression,
 ) : Statement()
 

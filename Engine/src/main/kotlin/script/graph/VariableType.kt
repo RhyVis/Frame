@@ -1,7 +1,7 @@
 package rhx.frame.script.graph
 
-import rhx.frame.core.ScriptException
 import rhx.frame.core.graph.Value
+import rhx.frame.exception.ScriptException
 
 enum class VariableType {
     INT32,
@@ -10,6 +10,7 @@ enum class VariableType {
     BOOL,
     STRING,
     OBJECT,
+    ANY,
     ;
 
     fun defaultValue(): Value =
@@ -20,5 +21,6 @@ enum class VariableType {
             BOOL -> Value.createBool(false)
             STRING -> Value.createString("")
             OBJECT -> throw ScriptException("Cannot create default value for OBJECT type")
+            ANY -> throw ScriptException("Cannot create default value for ANY type")
         }
 }

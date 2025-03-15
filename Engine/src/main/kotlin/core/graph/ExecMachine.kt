@@ -3,11 +3,11 @@
 package rhx.frame.core.graph
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import rhx.frame.core.JumpCalledException
-import rhx.frame.core.JumpLimitExceededException
-import rhx.frame.core.JumpTargetNotFoundException
-import rhx.frame.core.LoopLimitExceededException
-import rhx.frame.core.ScriptException
+import rhx.frame.exception.JumpCalledException
+import rhx.frame.exception.JumpLimitExceededException
+import rhx.frame.exception.JumpTargetNotFoundException
+import rhx.frame.exception.LoopLimitExceededException
+import rhx.frame.exception.ScriptException
 import rhx.frame.interaction.Access
 import rhx.frame.script.graph.BinaryOperation
 import rhx.frame.script.graph.BoolLiteral
@@ -29,6 +29,8 @@ import rhx.frame.script.graph.LoopStatement
 import rhx.frame.script.graph.NullLiteral
 import rhx.frame.script.graph.ObjectFieldAccessExpression
 import rhx.frame.script.graph.ObjectFieldAssignment
+import rhx.frame.script.graph.ObjectFieldCompoundAssignment
+import rhx.frame.script.graph.ObjectFieldSelfOperation
 import rhx.frame.script.graph.ObjectInstantiationExpression
 import rhx.frame.script.graph.ObjectMethodCall
 import rhx.frame.script.graph.ObjectMethodCallExpression
@@ -45,8 +47,10 @@ import rhx.frame.script.graph.SystemCallExpression
 import rhx.frame.script.graph.TerminateStatement
 import rhx.frame.script.graph.UnaryOperation
 import rhx.frame.script.graph.VariableAssignment
+import rhx.frame.script.graph.VariableCompoundAssignment
 import rhx.frame.script.graph.VariableDeclaration
 import rhx.frame.script.graph.VariableReference
+import rhx.frame.script.graph.VariableSelfOperation
 import rhx.frame.script.graph.VariableType
 
 /**
@@ -186,7 +190,7 @@ object ExecMachine : AutoCloseable {
             is SystemCallExpression -> SystemEnv.systemCall(expr.name, expr.map { evalExpr(it) })
             is FunctionCallExpression -> execFunc(expr.name, expr.map { evalExpr(it) })
             is BinaryOperation -> perfBinaryOpt(evalExpr(expr.left), expr.operator, evalExpr(expr.right))
-            is UnaryOperation -> perfUnaryOpt(expr.operator, evalExpr(expr.expression))
+            is UnaryOperation -> perfUnaryOpt(evalExpr(expr.expression), expr.operator)
             is ParenthesizedExpression -> evalExpr(expr.expression)
             is ObjectFieldAccessExpression -> objectFieldAccess(expr)
             is ObjectMethodCallExpression -> objectMethodInvoke(expr)
@@ -202,6 +206,7 @@ object ExecMachine : AutoCloseable {
             Operator.SUBTRACT -> left - right
             Operator.MULTIPLY -> left * right
             Operator.DIVIDE -> left / right
+            Operator.MODULO -> left % right
             Operator.EQUALS -> Value.createBool(left == right)
             Operator.NOT_EQUALS -> Value.createBool(left != right)
             Operator.GREATER_THAN -> Value.createBool(left > right)
@@ -211,15 +216,22 @@ object ExecMachine : AutoCloseable {
             Operator.AND -> left.and(right)
             Operator.OR -> left.or(right)
             Operator.NOT -> left.and(!right)
+            Operator.PLUS_ASSIGN -> left + right
+            Operator.MINUS_ASSIGN -> left - right
+            Operator.MULTIPLY_ASSIGN -> left * right
+            Operator.DIVIDE_ASSIGN -> left / right
+            Operator.MODULO_ASSIGN -> left % right
         }
 
     private fun perfUnaryOpt(
-        operator: SelfOperator,
         value: Value,
+        operator: SelfOperator,
     ): Value =
         when (operator) {
             SelfOperator.NOT -> !value
             SelfOperator.NEGATE -> value.negate()
+            SelfOperator.INCREMENT -> value.inc()
+            SelfOperator.DECREMENT -> value.dec()
         }
 
     private fun execStatement(stmt: Statement) {
@@ -241,6 +253,10 @@ object ExecMachine : AutoCloseable {
             is JumpStatement -> if (evalExpr(stmt.condition).isTrue) throw JumpCalledException(stmt.targetId)
             is ReturnStatement -> returnBuf = stmt.expression?.eval() ?: Value.NULL
             is TerminateStatement -> returnBuf = Value.NULL
+            is ObjectFieldCompoundAssignment -> objectFieldCompoundAssignment(stmt)
+            is ObjectFieldSelfOperation -> objectFieldSelfOperation(stmt)
+            is VariableCompoundAssignment -> variableCompoundAssignment(stmt)
+            is VariableSelfOperation -> variableSelfOperation(stmt)
         }
     }
 
@@ -285,6 +301,16 @@ object ExecMachine : AutoCloseable {
         }
     }
 
+    private fun variableCompoundAssignment(stmt: VariableCompoundAssignment) {
+        val value = env.getVariable(stmt.name)
+        env.setVariable(stmt.name, perfBinaryOpt(value, stmt.operator, stmt.expression.eval()))
+    }
+
+    private fun variableSelfOperation(stmt: VariableSelfOperation) {
+        val value = env.getVariable(stmt.name)
+        env.setVariable(stmt.name, perfUnaryOpt(value, stmt.operator))
+    }
+
     private fun declareVariable(stmt: VariableDeclaration) {
         if (stmt.expr != null) {
             env.declareVariable(stmt.name, stmt.type, evalExpr(stmt.expr))
@@ -315,26 +341,30 @@ object ExecMachine : AutoCloseable {
     }
 
     private fun objectFieldAccess(expr: ObjectFieldAccessExpression): Value {
-        val target = evalExpr(expr.target)
-
-        if (target !is Value.ObjectValue) {
-            throw IllegalArgumentException("Field access target ${expr.target} is not an object")
-        }
+        val target = expr.target.obj()
 
         return target.values[expr.fieldName]
             ?: throw IllegalArgumentException("Field ${expr.fieldName} not found in object ${target.typeName}")
     }
 
     private fun objectFieldAssignment(stmt: ObjectFieldAssignment) {
-        val target = stmt.target.eval()
+        stmt.target.obj().values[stmt.fieldName] = stmt.expression.eval()
+    }
 
-        if (target !is Value.ObjectValue) {
-            throw IllegalArgumentException("Field access target ${stmt.target} is not an object")
-        }
+    private fun objectFieldCompoundAssignment(stmt: ObjectFieldCompoundAssignment) {
+        val target = stmt.target.obj()
+        val value =
+            target.values[stmt.fieldName]
+                ?: throw IllegalArgumentException("Field ${stmt.fieldName} not found in object ${target.typeName}")
+        target.values[stmt.fieldName] = perfBinaryOpt(value, stmt.operator, stmt.expression.eval())
+    }
 
-        val value = stmt.expression.eval()
-
-        target.values[stmt.fieldName] = value
+    private fun objectFieldSelfOperation(stmt: ObjectFieldSelfOperation) {
+        val target = stmt.target.obj()
+        val value =
+            target.values[stmt.fieldName]
+                ?: throw IllegalArgumentException("Field ${stmt.fieldName} not found in object ${target.typeName}")
+        target.values[stmt.fieldName] = perfUnaryOpt(value, stmt.operator)
     }
 
     private fun objectMethodInvoke(expr: ObjectMethodCallExpression): Value =
@@ -376,6 +406,14 @@ object ExecMachine : AutoCloseable {
         return execScope(method.body, methodEnv)
     }
 
+    private fun accessObject(target: Expression): Value.ObjectValue {
+        val obj = target.eval()
+        if (obj !is Value.ObjectValue) {
+            throw IllegalArgumentException("Field access target $target is not an object")
+        }
+        return obj
+    }
+
     private fun callReference(stmt: Reference) {
         if (stmt.hasRef) {
             val p = stmt.getParagraph(env.getAllVariables())
@@ -403,6 +441,8 @@ object ExecMachine : AutoCloseable {
 
     // Shortcut for evalExpr
     private fun Expression.eval(): Value = evalExpr(this)
+
+    private fun Expression.obj(): Value.ObjectValue = accessObject(this)
 
     override fun close() = reset()
 }

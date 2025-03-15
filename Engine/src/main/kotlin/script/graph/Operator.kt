@@ -5,6 +5,7 @@ enum class Operator {
     SUBTRACT,
     MULTIPLY,
     DIVIDE,
+    MODULO,
     EQUALS,
     NOT_EQUALS,
     GREATER_THAN,
@@ -14,4 +15,9 @@ enum class Operator {
     AND,
     OR,
     NOT,
+    PLUS_ASSIGN,
+    MINUS_ASSIGN,
+    MULTIPLY_ASSIGN,
+    DIVIDE_ASSIGN,
+    MODULO_ASSIGN,
 }
